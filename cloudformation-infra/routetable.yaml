@@ -1,0 +1,87 @@
+AWSTemplateFormatVersion: 2010-09-09
+Description: Creates routes for the SubNetRouteTable declared in VPC.yaml.
+Parameters: 
+    EnvironmentName: 
+        Description: "A prefix for the resource names."
+        Type: String
+        Default: MyVPC
+    VPC:
+        Description: "The VPC to apply the routes."
+        Type: AWS::EC2::VPC::Id
+    
+Resources:
+    InternetRoute:
+        Type: AWS::EC2::Route
+        Properties:
+            RouteTableId: 
+                Fn::ImportValue: 
+                    !Sub "PublicSubNetRouteTableId-${EnvironmentName}"
+            DestinationCidrBlock: 0.0.0.0/0
+            GatewayId:
+                Fn::ImportValue:
+                    !Sub "InternetGatewayId-${EnvironmentName}"
+    PublicSubNetAAssociatedToInterntRoute:
+        Type: AWS::EC2::SubnetRouteTableAssociation
+        Properties: 
+            RouteTableId:
+                Fn::ImportValue:
+                    !Sub "PublicSubNetRouteTableId-${EnvironmentName}"
+            SubnetId:
+                Fn::ImportValue:
+                    !Sub "PublicSubNetAId-${EnvironmentName}"                    
+    PublicSubNetBAssociatedToInternetRoute:
+        Type: AWS::EC2::SubnetRouteTableAssociation    
+        Properties: 
+            RouteTableId:
+                Fn::ImportValue:
+                    !Sub "PublicSubNetRouteTableId-${EnvironmentName}"
+            SubnetId:
+                Fn::ImportValue:
+                    !Sub "PublicSubNetBId-${EnvironmentName}"
+    PublicSubNetCAssociatedToInternetRoute:
+        Type: AWS::EC2::SubnetRouteTableAssociation
+        Properties:
+            RouteTableId:
+                Fn::ImportValue:
+                  !Sub "PublicSubNetRouteTableId-${EnvironmentName}"
+            SubnetId:
+                Fn::ImportValue:
+                  !Sub "PublicSubNetCId-${EnvironmentName}"
+    PrivateRoute:
+        Type: AWS::EC2::Route
+        Properties:
+            RouteTableId:
+                Fn::ImportValue:
+                    !Sub "PrivateSubNetRouteTableId-${EnvironmentName}"
+            DestinationCidrBlock: 0.0.0.0/0
+            NatGatewayId:
+                Fn::ImportValue:
+                    !Sub "NatId-${EnvironmentName}"
+    PrivateSubNetAAssociatedToPrivateRoute:
+        Type: AWS::EC2::SubnetRouteTableAssociation
+        Properties:
+            RouteTableId:
+                Fn::ImportValue:
+                    !Sub "PrivateSubNetRouteTableId-${EnvironmentName}"
+            SubnetId:
+                Fn::ImportValue:
+                    !Sub "PrivateSubNetAId-${EnvironmentName}"
+    PrivateSubNetBAssociatedToPrivateRoute:
+        Type: AWS::EC2::SubnetRouteTableAssociation
+        Properties:
+            RouteTableId:
+                Fn::ImportValue:
+                    !Sub "PrivateSubNetRouteTableId-${EnvironmentName}"
+            SubnetId:
+                Fn::ImportValue:
+                    !Sub "PrivateSubNetBId-${EnvironmentName}"
+    PrivateSubNetCAssociatedToPrivateRoute:
+        Type: AWS::EC2::SubnetRouteTableAssociation
+        Properties:
+            RouteTableId:
+                Fn::ImportValue:
+                  !Sub "PrivateSubNetRouteTableId-${EnvironmentName}"
+            SubnetId:
+                Fn::ImportValue:
+                  !Sub "PrivateSubNetCId-${EnvironmentName}"
+                        

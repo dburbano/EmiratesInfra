@@ -1,0 +1,66 @@
+AWSTemplateFormatVersion: 2010-09-09
+Description: Master stack file to create an infrastructure by stacks...
+
+Parameters:
+    SourceCode:
+        Description: "Bucket's name where stacks are stored."
+        Type: String
+        Default: infra-dab
+
+Mappings:
+    EnvironmentMap:
+        OPS:
+            VpcAddress: 10.4.0.0/16
+            PublicSubNetAAddress: 10.4.0.0/24
+            PublicSubNetBAddress: 10.4.1.0/24
+            PublicSubNetCAddress: 10.4.2.0/24
+            PrivateSubNetAAddress: 10.4.3.0/24
+            PrivateSubNetBAddress: 10.4.4.0/24
+            PrivateSubNetCAddress: 10.4.5.0/24
+        DEV:
+            VpcAddress: 10.5.0.0/16
+            PublicSubNetAAddress: 10.5.0.0/24
+            PublicSubNetBAddress: 10.5.1.0/24
+            PublicSubNetCAddress: 10.5.2.0/24
+            PrivateSubNetAAddress: 10.5.3.0/24
+            PrivateSubNetBAddress: 10.5.4.0/24
+            PrivateSubNetCAddress: 10.5.5.0/24
+        QA:
+            VpcAddress: 10.6.0.0/16
+            PublicSubNetAAddress: 10.6.0.0/24
+            PublicSubNetBAddress: 10.6.1.0/24
+            PublicSubNetCAddress: 10.6.2.0/24
+            PrivateSubNetAAddress: 10.6.3.0/24
+            PrivateSubNetBAddress: 10.6.4.0/24
+            PrivateSubNetCAddress: 10.6.5.0/24
+        PROD:
+            VpcAddress: 10.7.0.0/16
+            PublicSubNetAAddress: 10.7.0.0/24
+            PublicSubNetBAddress: 10.7.1.0/24
+            PublicSubNetCAddress: 10.7.2.0/24
+            PrivateSubNetAAddress: 10.7.3.0/24
+            PrivateSubNetBAddress: 10.7.4.0/24
+            PrivateSubNetCAddress: 10.7.5.0/24
+
+Resources:
+    VPC:
+        Type: "AWS::CloudFormation::Stack"
+        Properties:
+            TemplateURL: !Sub "https://${SourceCode}.s3.amazonaws.com/vpc.yaml"
+            Parameters:
+                EnvironmentName: !Ref AWS::StackName
+                VpcCIDR: !FindInMap [ EnvironmentMap, !Ref "AWS::StackName", VpcAddress ]
+                PublicSubNetACIDR: !FindInMap [ EnvironmentMap, !Ref "AWS::StackName", PublicSubNetAAddress ]
+                PublicSubNetBCIDR: !FindInMap [ EnvironmentMap, !Ref "AWS::StackName", PublicSubNetBAddress ]
+                PublicSubNetCCIDR: !FindInMap [ EnvironmentMap, !Ref "AWS::StackName", PublicSubNetCAddress ]
+                PrivateSubNetACIDR: !FindInMap [ EnvironmentMap, !Ref "AWS::StackName", PrivateSubNetAAddress ]
+                PrivateSubNetBCIDR: !FindInMap [ EnvironmentMap, !Ref "AWS::StackName", PrivateSubNetBAddress ]
+                PrivateSubNetCCIDR: !FindInMap [ EnvironmentMap, !Ref "AWS::StackName", PrivateSubNetCAddress ]
+    RouteTable:
+        Type: "AWS::CloudFormation::Stack"
+        Properties:
+            TemplateURL: !Sub "https://${SourceCode}.s3.amazonaws.com/routetable.yaml"
+            Parameters:
+                EnvironmentName: !Ref AWS::StackName
+                VPC:
+                    !GetAtt VPC.Outputs.VPC
